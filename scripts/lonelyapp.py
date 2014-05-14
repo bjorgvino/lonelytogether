@@ -1,15 +1,7 @@
-import web
-import time
-import requests
+from instagram import client, subscriptions
 import MySQLdb
 import json
-from instagram import client, subscriptions
-
-print "Setting up routes"
-urls = (
-  '/', 'index',
-  '/callback', 'instagram_handler'
-)
+import requests
 
 api = None
 reactor = None
@@ -21,30 +13,42 @@ def get_config(filename):
 
 def get_database_connection():
   print "Connecting to database"
-  if conn != None and conn.open:
-    #print "Returned existing connection object"
+  global conn
+  if not conn is None and conn.open:
+    print "Returned existing connection object"
     return conn
-  #print "Opening new connection"
+  print "Opening new connection"
   return MySQLdb.connect(host=DATABASE_CONFIG['host'], user=DATABASE_CONFIG['username'], passwd=DATABASE_CONFIG['password'], db=DATABASE_CONFIG['db'])
 
 def get_reactor():
   print "Creating subscriptions reactor"
-  if reactor != None:
-    #print "Returned existing reactor object"
+  global reactor
+  if not reactor is None:
+    print "Returned existing reactor object"
     return reactor
-  #print "Created new subscriptions reactor"
+  print "Created new subscriptions reactor"
   return subscriptions.SubscriptionsReactor()
 
 def get_api():
   print "Creating Instagram API"
-  if api != None:
+  global api
+  if not api is None:
     print "Returned existing api object"
     return api
   print "Created new api object"
   return client.InstagramAPI(**CONFIG)
 
+def process_request(x_hub_signature, raw_response):
+  try:
+    #reactor = get_reactor()
+    global reactor
+    reactor.process(CONFIG['client_secret'], raw_response, x_hub_signature)
+  except subscriptions.SubscriptionVerifyError:
+    print "Signature mismatch"
+
 def process_tag_update(result):
-  conn = get_database_connection()
+  #conn = get_database_connection()
+  global conn
 
   # Fetch images with tag 
   payload = {'count': 5, 'client_id': CONFIG['client_id']}
@@ -68,49 +72,21 @@ def process_tag_update(result):
           print str(e)
           conn.rollback()
   else:
-    print "Error when getting data from API"  
+    print "Error when getting data from API"
 
   # Get current max id
   # c.execute("""SELECT max_tag_id FROM posts ORDER BY created_at DESC LIMIT 0, 1""")
   # max_tag_id = c.fetchone()
   # print max_tag_id
 
-class index:
-  def GET(self):
-    return "Hello, world!"
-
-class instagram_handler:
-  def GET(self):
-    hub_data = web.input()
-    if hub_data['hub.mode'] == 'subscribe':
-      return hub_data['hub.challenge']
-    return "Error"
-
-  def POST(self):
-    x_hub_signature = web.ctx.env.get('HTTP_X_HUB_SIGNATURE')
-    raw_response = web.data()
-    try:
-      reactor = get_reactor()
-      reactor.process(CONFIG['client_secret'], raw_response, x_hub_signature)
-    except subscriptions.SubscriptionVerifyError:
-      print "Signature mismatch"
-
 print "Reading configuration files"
 CONFIG = get_config('config/api.json')
 APP_CONFIG = get_config('config/app.json')
 DATABASE_CONFIG = get_config('config/db.json')
 
-if __name__ == "__main__":
-  #print "Subscribe to tag"
-  #api.create_subscription(object='tag', object_id=APP_CONFIG['tag'], aspect='media', callback_url=APP_CONFIG['callback'])
+api = get_api()
+reactor = get_reactor()
+conn = get_database_connection()
 
-  conn = get_database_connection()
-  #api = get_api()
-  reactor = get_reactor()
-
-  print "Registering subscription callback"
-  reactor.register_callback(subscriptions.SubscriptionType.TAG, process_tag_update)
-
-  print "Starting application"
-  app = web.application(urls, globals())
-  app.run()
+print "Registering subscription callback"
+reactor.register_callback(subscriptions.SubscriptionType.TAG, process_tag_update)
