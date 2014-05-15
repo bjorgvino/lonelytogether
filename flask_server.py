@@ -1,9 +1,9 @@
 import lonelyapp
-from flask import Flask, request
+from flask import Flask, request, redirect, url_for
 
 app = Flask(__name__)
 
-@app.route('/api')
+@app.route('/api/')
 def home():
   if request.args.get('ping', None) == '':
     return "Pong!\n"  
@@ -13,7 +13,7 @@ def home():
 def instagram_subscription():
   if request.args.get('hub.mode', '') == 'subscribe':
     return request.args.get('hub.challenge')
-  return "Error\n"
+  return redirect(url_for('home'))
 
 @app.route('/api/callback', methods=['POST'])
 def instagram_tag_update_handler():
