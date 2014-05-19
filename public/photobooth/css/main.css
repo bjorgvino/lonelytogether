@@ -2,7 +2,10 @@
    Author's custom styles
    ========================================================================== */
 
-#photobooth {
+body {
+  background-color: #000;
+}
+
+#videodivs {
   width: 640px;
-  height: 480px;
 }

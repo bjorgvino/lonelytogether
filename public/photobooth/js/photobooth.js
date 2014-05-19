@@ -26,7 +26,10 @@ window.requestAnimationFrame = (function(){
 })();
 
 function showStatus(s) {
-  document.querySelector("#status").innerHTML = s;
+  var status = document.querySelector("#status");
+  if (status){
+    document.querySelector("#status").innerHTML = s;
+  }
 }
 
 // This function will be called if a webcam is available and the user has
@@ -43,7 +46,7 @@ function successCallback(stream) {
   video.play(); 
   
   // Show the DOM elements that contain the rest of the UI
-  document.querySelector("#videodivs").style.display = "inline"; 
+  document.querySelector("#videodivs").style.display = "block"; 
   showStatus("You should be seeing video from your camera.");
   
   // capture the first frame of video and start the animation loop that
@@ -154,8 +157,10 @@ function update(){
   if (frameNumber >= 60) {
       var currentTime = (new Date).getTime();            // in milliseconds
       var deltaTime = (currentTime - startTime)/1000.0;  // in seconds
-
-      document.querySelector("#fps").innerHTML = (Math.floor(frameNumber/deltaTime) + " fps");
+      var fps = document.querySelector("#fps");
+      if (fps){
+        fps.innerHTML = (Math.floor(frameNumber/deltaTime) + " fps");
+      }
       startTime = currentTime;
       frameNumber = 0;
   }         
@@ -199,16 +204,9 @@ function takeSnapshot() {
   // Set the src of the image url to the data url
   document.querySelector("#snapshot").src = url;
   // Display the DOM elements that contain the snapshot
-  document.querySelector("#snapshotdiv").style.display="inline-block";
+  document.querySelector("#snapshotdiv").style.display="block";
 }
 
 function setFilter(f) {
   imageFilter = f;
 }
-
-/*
-$(window).load(function() {
-    console.log("Hello");
-    onLoad();
-});
-*/
