@@ -4,3 +4,9 @@
 	display: block;
 	margin: 0 auto;
 }
+#description {
+	font-weight: bold;
+	text-align: center;
+	font-size: 2em;
+	color: #ffdf00;
+}
