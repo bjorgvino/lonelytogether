@@ -43,18 +43,18 @@
           Your browser does not support the canvas tag.
         </canvas>
 
-        <div class="input-group input-group-lg">
-          <span class="input-group-addon">@</span>
-          <input type="text" class="form-control" placeholder="Instagram username" data-name="username">
-        </div>
         <!--
         <br/>
         <button onclick="takeSnapshot();">Snapshot</button>
         Status: <span id="status">Waiting for permission to access camera...</span>
         <span id="fps"></span>
         -->
-        <div id="snapshotdiv" class="center-block" style="display:none;">
-          <img id="snapshot">
+      </div>
+      <div id="snapshotdiv" class="center-block" style="display:none;">
+        <img id="snapshot">
+        <div class="input-group input-group-lg">
+          <span class="input-group-addon">@</span>
+          <input type="text" class="form-control" placeholder="Instagram username" data-name="username" maxlength="30">
         </div>
       </div>
       <video style="display:none;"></video>

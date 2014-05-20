@@ -6,6 +6,6 @@ body {
   background-color: #000;
 }
 
-#videodivs {
+#videodivs, #snapshotdiv {
   width: 640px;
 }
