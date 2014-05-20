@@ -200,11 +200,12 @@ function onLoad() {
 
 function takeSnapshot() {
   var url = canvas.toDataURL();
-  console.log(url);
+  //console.log(url);
   // Set the src of the image url to the data url
   document.querySelector("#snapshot").src = url;
   // Display the DOM elements that contain the snapshot
   document.querySelector("#snapshotdiv").style.display="block";
+  return url;
 }
 
 function setFilter(f) {
