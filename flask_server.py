@@ -1,8 +1,4 @@
-import lonelyapp
-import base64
-import re
-import uuid
-import os
+import lonelyapp, base64, re, uuid, os
 from flask import Flask, request, redirect, url_for
 from flask_utils import crossdomain
 from PIL import Image
