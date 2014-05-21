@@ -1,0 +1,22 @@
+#logo > img {
+	max-width: 100%;
+	height: auto;
+	display: block;
+	margin: 0 auto;
+}
+#description {
+	font-weight: bold;
+	text-align: center;
+	font-size: 2em;
+	color: #ffdf00;
+	margin-bottom: 4em;
+}
+#photogrid img {
+	max-width: 100%;
+	height: auto;
+	margin: 15px auto;
+}
+#disqus_thread {
+	max-width: 50%;
+	margin: 150px auto 50px;
+}
