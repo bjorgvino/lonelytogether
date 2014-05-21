@@ -7,6 +7,13 @@
     <meta name="description" content="lonelytogether, a project by Patricia Miodek">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
+    <meta name="og:title" content="#lonelytogether">
+    <meta name="og:site_name" content="lonelytogether">
+    <meta name="og:url" content="http://lonelytogether.se">
+    <meta name="og:description" content="Let's be lonely together!">
+    <meta name="og:image" content="http://lonelytogether.se/img/lonelytogetherlogo.png">
+    <meta name="og:app_id" content="488585834603700">
+
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/index.css">
 
@@ -17,9 +24,14 @@
 </head>
 <body>
 
-	<header class="container">
+	<header id="mainheader" class="container">
 		<div id="logo">
 			<img src="img/lonelytogetherlogo.png" width="494" height="488" alt="Lonelytogether logo" />
+		</div>
+
+		<div id="socialbuttons">
+			<div class="fb-like" data-href="http://lonelytogether.se" data-layout="button_count" data-action="like" data-show-faces="false" data-share="false"></div>
+			<a href="https://twitter.com/share" class="twitter-share-button" data-text="lonelytogether" data-hashtags="lonelytogether">Tweet</a>
 		</div>
 	</header>
 
@@ -76,5 +88,18 @@
             (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
         })();
     </script>
+
+    <div id="fb-root"></div>
+	<script>(function(d, s, id) {
+		var js, fjs = d.getElementsByTagName(s)[0];
+		if (d.getElementById(id)) return;
+		js = d.createElement(s); js.id = id;
+		js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&appId=488585834603700&version=v2.0";
+		fjs.parentNode.insertBefore(js, fjs);
+	}(document, 'script', 'facebook-jssdk'));</script>
+
+	<script>
+		!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');
+	</script>
 </body>
 </html>

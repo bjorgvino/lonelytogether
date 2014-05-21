@@ -1,8 +1,19 @@
+#mainheader {
+	position: relative;
+}
 #logo > img {
 	max-width: 100%;
 	height: auto;
 	display: block;
 	margin: 0 auto;
+}
+#socialbuttons {
+	position: absolute;
+	top: 20px;
+	right: 15px;
+}
+.fb-like > span {
+	vertical-align: baseline !important;
 }
 #description {
 	font-weight: bold;
