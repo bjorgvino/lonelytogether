@@ -42,7 +42,7 @@ def instagram_tag_update_handler():
   return "Done\n"
 
 @app.route('/api/upload', methods=['POST', 'OPTIONS'])
-@crossdomain(origin='*') # Disable this if we won't need this on prod
+#@crossdomain(origin='*') # Disable this if we won't need this on prod
 def photobooth_upload_handler():
   # Get post data: Username and image data
   dataUrl = request.form['dataUrl']

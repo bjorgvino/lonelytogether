@@ -34,7 +34,8 @@ $(function(){
   function submitImage(){
     console.log('Sending image to server....');
 
-    $.post('http://localhost:5000/api/upload', {'dataUrl': currentDataUrl, 'username': $username.val()})
+    // http://localhost:5000/api/upload
+    $.post('/api/upload', {'dataUrl': currentDataUrl, 'username': $username.val()})
     .done(function(data){
       console.log(data);
       $previewImage.attr('src', data);
