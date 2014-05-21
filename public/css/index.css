@@ -16,3 +16,7 @@
 	height: auto;
 	margin: 15px auto;
 }
+#disqus_thread {
+	max-width: 50%;
+	margin: 150px auto 50px;
+}
