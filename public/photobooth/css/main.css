@@ -4,8 +4,10 @@
 
 body {
   background-color: #000;
+  padding-top: 50px;
+  padding-bottom: 20px;
 }
 
-#videodivs, #snapshotdiv {
+#videodivs, #snapshotdiv, #resultdiv {
   width: 640px;
 }

@@ -4,10 +4,22 @@ import re
 import uuid
 import os
 from flask import Flask, request, redirect, url_for
+from flask_utils import crossdomain
+from PIL import Image
+from io import BytesIO
 
 app = Flask(__name__)
 dataUrlPattern = re.compile('data:image/(png|jpeg);base64,(.*)$')
-imageDir = os.path.join(os.path.dirname(__file__), 'public', 'uploads')
+
+publicImageDir = os.path.join('uploads', 'photobooth_images')
+imageDir = os.path.join(os.path.dirname(__file__), 'public', publicImageDir)
+imageDirOriginals = os.path.join(imageDir, 'originals')
+
+try: 
+  os.makedirs(imageDirOriginals)
+except OSError:
+  if not os.path.isdir(imageDirOriginals):
+    raise
 
 @app.route('/api/')
 def home():
@@ -29,25 +41,58 @@ def instagram_tag_update_handler():
   lonelyapp.process_request(x_hub_signature, raw_response)
   return "Done\n"
 
-@app.route('/api/upload', methods=['POST'])
+@app.route('/api/upload', methods=['POST', 'OPTIONS'])
+@crossdomain(origin='*') # Disable this if we won't need this on prod
 def photobooth_upload_handler():
-  # TODO: 
-  # - Get post data: Username and image data
+  # Get post data: Username and image data
   dataUrl = request.form['dataUrl']
   username = request.form['username']
-  imageB64Data = self.dataUrlPattern.match(imgdata).group(2)
+  imageB64Data = dataUrlPattern.match(dataUrl).group(2)
   if imageB64Data is not None and len(imageB64Data) > 0:
-    # - Decode image and save to disk with a unique filename
-    imageData = base64.b64decode(imgb64)
-    imageFilename = uuid.uuid4() + '.png'
-    fh = open(os.path.join(imageDir, imageFilename, 'wb'))
-    fh.write(imgData.decode('base64'))
-    fh.close()
-    # - Check for previous image in database, read the image and merge
-    # - Save an entry in database 
-    return "Done\n"
+    # Decode image and save to disk with a unique filename
+    imageData = base64.b64decode(imageB64Data)
+    imageFilename = str(uuid.uuid4()) + '.jpg'
+    i = Image.open(BytesIO(imageData))
+    i.save(os.path.join(imageDirOriginals, imageFilename))
+
+    # Fetch random entry from database
+    randomEntry = lonelyapp.get_random_photobooth_entry()
+
+    if randomEntry is None:
+      # Save info in database and return
+      print "Saving image info for first image"
+      lonelyapp.save_photobooth_entry(username, imageFilename)
+      return "First image", 500
+    else:
+      # Save info in database and carry on
+      print "Saving image info before pairing"
+      current_id = lonelyapp.save_photobooth_entry(username, imageFilename, randomEntry['id'])
+
+      # Cropping original image
+      width, height = i.size
+      left = width/4
+      top = 0
+      right = 3 * left
+      bottom = height
+      cropped = i.crop((left, top, right, bottom))
+
+      # Cropping paired image
+      i2 = Image.open(os.path.join(imageDirOriginals, randomEntry['image_filename']))
+      cropped2 = i2.crop((left, top, right, bottom))
+
+      # Combine images and save the resulting image to disk
+      combined = Image.new('RGB', (640, 480))
+      combined.paste(cropped, (0, 0))
+      combined.paste(cropped2, (320, 0))
+      combined.save(os.path.join(imageDir, imageFilename))
+
+      # Save paired info database
+      lonelyapp.save_lonely_feed_entry(username, randomEntry['username'], imageFilename, 'photobooth', current_id)
+
+      # Return combined image
+      return os.path.join('/', publicImageDir, imageFilename)
   else:
-    return "error", 500
+    return "Error", 500
 
 if __name__ == '__main__':
     app.run(debug=True)

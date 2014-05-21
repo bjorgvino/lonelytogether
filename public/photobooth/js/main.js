@@ -2,8 +2,11 @@ $(function(){
   var $username = $('input[data-name="username"]');
   var $video = $('#videodivs');
   var $preview = $('#snapshotdiv');
+  var $previewImage = $('#resultimage');
+  var $previewImageContainer = $('#resultdiv');
   var readyToSubmit = false;
   var currentDataUrl = '';
+  var animationSpeed = 'slow';
 
   function getKeyCode(event){
     return (typeof event.which == "number") ? event.which : event.keyCode;
@@ -17,20 +20,36 @@ $(function(){
   }
 
   function discardImage(){
-    $video.show();
-    $preview.hide();
     $username.val('');
-    readyToSubmit = false;
     currentDataUrl = '';
+
+    $preview.hide();
+    $previewImageContainer.fadeOut(animationSpeed, function(){
+      $video.fadeIn(animationSpeed, function(){
+        readyToSubmit = false;
+      });
+    });    
   }
 
   function submitImage(){
-    console.log('Sending image to server...');
-    //console.log(currentDataUrl);
-    // TODO: Do some stuff...
+    console.log('Sending image to server....');
 
-    // Wait for the response, display the result for a while, then discard...
-    discardImage();
+    $.post('http://localhost:5000/api/upload', {'dataUrl': currentDataUrl, 'username': $username.val()})
+    .done(function(data){
+      console.log(data);
+      $previewImage.attr('src', data);
+      $preview.fadeOut(animationSpeed, function(){
+        $previewImageContainer.fadeIn(animationSpeed, function() {
+          setTimeout(function() {
+            discardImage();
+          }, 3000);
+        });
+      });
+    })
+    .fail(function(error){
+      console.log(error);
+      discardImage();
+    })
   }
 
   $username.keydown(function(event){

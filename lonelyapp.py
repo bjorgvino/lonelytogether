@@ -79,6 +79,47 @@ def process_tag_update(result):
   # max_tag_id = c.fetchone()
   # print max_tag_id
 
+def get_random_photobooth_entry():
+  global conn
+
+  cur = conn.cursor(MySQLdb.cursors.DictCursor)
+  cur.execute("""SELECT r1.id, r1.username, r1.image_filename FROM photobooth_posts AS r1 JOIN (SELECT (RAND() * (SELECT MAX(id) FROM photobooth_posts)) AS id) AS r2 WHERE r1.id >= r2.id ORDER BY r1.id ASC LIMIT 1;""")
+  data = cur.fetchone()
+  cur.close()
+  return data
+
+def save_photobooth_entry(username, imageFilename, randomEntryId=0):
+  global conn
+
+  print "Saving photobooth entry"
+  try:
+    cur = conn.cursor()
+    cur.execute("""INSERT INTO photobooth_posts (username, image_filename, paired_id) VALUES (%s, %s, %s)""", (username, imageFilename, randomEntryId))
+    insert_id = cur.lastrowid
+    cur.close()
+    conn.commit()
+    return insert_id
+  except Exception, e:
+      print "Error saving photobooth entry"
+      print str(e)
+  return 0
+
+def save_lonely_feed_entry(username, username2, image_filename, source, source_id):
+  global conn
+
+  print "Saving lonely feed entry"
+  try:
+    cur = conn.cursor()
+    cur.execute("""INSERT INTO lonely_feed (left_username, right_username, image_filename, source, source_id) VALUES (%s, %s, %s, %s, %s)""", (username, username2, image_filename, source, source_id))
+    insert_id = cur.lastrowid
+    cur.close()
+    conn.commit()
+    return insert_id
+  except Exception, e:
+      print "Error saving lonely feed entry"
+      print str(e)
+  return 0
+
 print "Reading configuration files"
 CONFIG = get_config('config/api.json')
 APP_CONFIG = get_config('config/app.json')
