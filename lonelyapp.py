@@ -1,7 +1,5 @@
+import MySQLdb, json, requests
 from instagram import client, subscriptions
-import MySQLdb
-import json
-import requests
 
 api = None
 reactor = None
