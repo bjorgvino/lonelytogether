@@ -118,6 +118,16 @@ def save_lonely_feed_entry(username, username2, image_filename, source, source_i
       print str(e)
   return 0
 
+def get_feed(count, lastId):
+  global conn
+  print lastId
+  par = (int(lastId), int(count))
+  cur = conn.cursor(MySQLdb.cursors.DictCursor)
+  cur.execute("SELECT id, left_username, right_username, image_filename FROM lonely_feed WHERE id > %s ORDER BY id DESC LIMIT %s", par)
+  data = cur.fetchall()
+  cur.close()
+  return json.dumps(data)
+
 print "Reading configuration files"
 CONFIG = get_config('config/api.json')
 APP_CONFIG = get_config('config/app.json')

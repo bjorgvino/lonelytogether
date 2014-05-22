@@ -1,10 +1,13 @@
 $(function(){
+  var uploadUrl = '/api/upload';
+  //var uploadUrl = 'http://localhost:5000/api/upload';
   var $username = $('input[data-name="username"]');
   var $video = $('#videodivs');
   var $preview = $('#snapshotdiv');
   var $previewImage = $('#resultimage');
   var $previewImageContainer = $('#resultdiv');
   var readyToSubmit = false;
+  var submitting = false;
   var currentDataUrl = '';
   var animationSpeed = 'slow';
 
@@ -21,6 +24,7 @@ $(function(){
 
   function discardImage(){
     $username.val('');
+    submitting = false;
     currentDataUrl = '';
 
     $preview.hide();
@@ -33,9 +37,9 @@ $(function(){
 
   function submitImage(){
     console.log('Sending image to server....');
+    submitting = true;
 
-    // http://localhost:5000/api/upload
-    $.post('/api/upload', {'dataUrl': currentDataUrl, 'username': $username.val()})
+    $.post(uploadUrl, {'dataUrl': currentDataUrl, 'username': $username.val()})
     .done(function(data){
       console.log(data);
       $previewImage.attr('src', data);
@@ -61,7 +65,9 @@ $(function(){
       return;
     } else if (keyCode == '13') {
       // Submit image
-      submitImage();
+      if (!submitting){
+        submitImage();  
+      }
     }
   });
 
