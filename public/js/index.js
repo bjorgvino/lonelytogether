@@ -15,7 +15,7 @@ $(function () {
       method: 'get',
       dataType: 'json',
       url: api + 'getfeed',
-      data: { count: 20, lastId: lastId },
+      data: { count: 240, lastId: lastId },
       //success: success
     })).then(function(data){
       if (data && data.length > 0){
