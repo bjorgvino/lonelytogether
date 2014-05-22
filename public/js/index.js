@@ -33,18 +33,15 @@ $(function () {
   function renderImages(data){
     console.log('Fetched images: ', data);
     for (var i in data){
-      var $currentRow = $photogrid.find('div.row:first');
+      var $row = $photogrid.find('div.row:first');
+      var imageDiv = '<div class="col-sm-2"><img src="' + imageFolder + data[i].image_filename + '" alt="" /></div>';
       if (lastId == 0){
         // First render
-        if (i % 6 == 0){
-          $photogrid.append('<div class="row"></div>');
-        }
-        $currentRow = $photogrid.find('div.row:last');
-      } else if ($currentRow.find('div').length % 6 == 0){
-        $photogrid.prepend('<div class="row"></div>');
-        $currentRow = $photogrid.find('div.row:first');
+        $row.append(imageDiv);
+      } else {
+        // Incremental render
+        $row.prepend(imageDiv);
       }
-      $currentRow.append('<div class="col-sm-2"><img src="'+imageFolder+data[i].image_filename+'" alt="" /></div>');
     }
     console.log('Done with images');
   }

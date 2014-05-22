@@ -21,7 +21,7 @@ except OSError:
 def home():
   if request.args.get('ping', None) == '':
     return "Pong!\n"  
-  return "Let\'s be lonely together! Auto deploy enabled...\n"
+  return "Let\'s be lonely together!\n"
 
 @app.route('/api/callback', methods=['GET'])
 def instagram_subscription():
