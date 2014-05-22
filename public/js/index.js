@@ -14,7 +14,7 @@ $(window).resize(function() {
 	sizeHeader();
 })
 
-function sizeHeader($container, $logo) {
+function sizeHeader() {
 	var $container = $('#logo'),
 		$logo = $container.find('img'),
 		viewportheight = $(window).height();
