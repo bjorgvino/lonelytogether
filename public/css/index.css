@@ -3,8 +3,15 @@ p {
 }
 #mainheader {
 	position: relative;
+	z-index: 0;
 }
-#logo > img {
+#logo > div {
+	width: 100%;
+	-webkit-transform: translateZ(0);
+	-moz-transform: translateZ(0);
+	transform: translateZ(0);
+}
+#logo img {
 	max-width: 100%;
 	height: auto;
 	display: block;
@@ -24,6 +31,14 @@ p {
 	font-size: 2em;
 	color: #ffdf00;
 	margin-bottom: 4em;
+	position: relative;
+	z-index: 1;
+	-webkit-transform: translateZ(0);
+	-moz-transform: translateZ(0);
+	transform: translateZ(0);
+}
+#photogrid {
+	z-index: 2;
 }
 #photogrid img {
 	max-width: 100%;

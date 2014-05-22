@@ -1,5 +1,13 @@
 $(function () {
 	sizeHeader();
+
+	var s = skrollr.init({
+		constants: {
+			logooffset: function() {
+				return ($(window).height() - $('#logo img').height()) / 2;
+			}
+		}
+	});
 });
 
 $(window).resize(function() {
