@@ -19,8 +19,8 @@ $(function () {
       //success: success
     })).then(function(data){
       if (data && data.length > 0){
-        lastId = data[0].id;
         renderImages(data);
+        lastId = data[0].id;
       }
     }, function(error){
       console.log(error);
