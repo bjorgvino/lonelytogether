@@ -7,6 +7,13 @@
     <meta name="description" content="lonelytogether, a project by Patricia Miodek">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
+    <meta name="og:title" content="#lonelytogether">
+    <meta name="og:site_name" content="lonelytogether">
+    <meta name="og:url" content="http://lonelytogether.se">
+    <meta name="og:description" content="Let's be lonely together!">
+    <meta name="og:image" content="http://lonelytogether.se/img/lonelytogetherlogo.png">
+    <meta name="og:app_id" content="488585834603700">
+
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="css/index.css">
 
@@ -17,13 +24,20 @@
 </head>
 <body>
 
-	<header class="container">
+	<header id="mainheader" class="container">
 		<div id="logo">
-			<img src="img/lonelytogetherlogo.png" width="494" height="488" alt="Lonelytogether logo" />
+			<div data-0="opacity: 1; margin-top: 0%" data-_logooffset-top="opacity: 0; margin-top: 10%">
+				<img src="img/lonelytogetherlogo.png" width="494" height="488" alt="Lonelytogether logo" />
+			</div>
+		</div>
+
+		<div id="socialbuttons">
+			<div class="fb-like" data-href="http://lonelytogether.se" data-layout="button_count" data-action="like" data-show-faces="false" data-share="false"></div>
+			<a href="https://twitter.com/share" class="twitter-share-button" data-text="Let's be lonely together!" data-hashtags="lonelytogether">Tweet</a>
 		</div>
 	</header>
 
-	<article id="description" class="container">
+	<article id="description" class="container" data-bottom-top="opacity: 0" data--20p-bottom-top="opacity: 1">
 		<p>Loneliness is something we seldom discuss but which touches us all. One of the most shameful things imaginable is to appear lonely in the eyes of others. In social medias we are fed of happenings we are not a part of and at the same time we want to share pictures of a perfect life. It is in our very nature to be drawn to companionship but we also strive to be individualists. Alone equates to strong, but is alone really all that good?</p>
 
 		<p>This project is made by Patricia Miodek and is my degree piece at Beckmans College of Design in Visual Communication 2014.</p>
@@ -67,6 +81,7 @@
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 	<script>window.jQuery || document.write('<script src="js/vendor/jquery-1.11.0.min.js"><\/script>')</script>
 
+	<script src="js/vendor/skrollr.js"></script>
 	<script src="js/index.js"></script>
 
 	<script>
@@ -78,5 +93,18 @@
             (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
         })();
     </script>
+
+    <div id="fb-root"></div>
+	<script>(function(d, s, id) {
+		var js, fjs = d.getElementsByTagName(s)[0];
+		if (d.getElementById(id)) return;
+		js = d.createElement(s); js.id = id;
+		js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&appId=488585834603700&version=v2.0";
+		fjs.parentNode.insertBefore(js, fjs);
+	}(document, 'script', 'facebook-jssdk'));</script>
+
+	<script>
+		!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');
+	</script>
 </body>
 </html>

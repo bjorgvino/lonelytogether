@@ -40,13 +40,21 @@ $(function () {
     }
     console.log('Done with images');
   }
+
+	var s = skrollr.init({
+		constants: {
+			logooffset: function() {
+				return ($(window).height() - $('#logo img').height()) / 2;
+			}
+		}
+	});
 });
 
 $(window).resize(function() {
 	sizeHeader();
 })
 
-function sizeHeader($container, $logo) {
+function sizeHeader() {
 	var $container = $('#logo'),
 		$logo = $container.find('img'),
 		viewportheight = $(window).height();
