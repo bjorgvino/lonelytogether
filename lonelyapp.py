@@ -119,7 +119,6 @@ def save_lonely_feed_entry(username, username2, image_filename, source, source_i
   return 0
 
 def get_feed(count, lastId):
-  return 'getfeed'
   global conn
   print lastId
   par = (int(lastId), int(count))
