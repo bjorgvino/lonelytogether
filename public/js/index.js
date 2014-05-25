@@ -6,7 +6,7 @@ var $photogrid = $('#photogrid');
 var lastId = 0;
 
 $(function () {
-	sizeHeader();
+  sizeHeader();
   fetchImages();
 
   function fetchImages(){
@@ -46,23 +46,23 @@ $(function () {
     console.log('Done with images');
   }
 
-	var s = skrollr.init({
-		constants: {
-			logooffset: function() {
-				return ($(window).height() - $('#logo img').height()) / 2;
-			}
-		}
-	});
+    var s = skrollr.init({
+        constants: {
+            logooffset: function() {
+                return ($(window).height() - $('#logo img').height()) / 2;
+            }
+        }
+    });
 });
 
 $(window).resize(function() {
-	sizeHeader();
+  sizeHeader();
 })
 
 function sizeHeader() {
-	var $container = $('#logo'),
-		$logo = $container.find('img'),
-		viewportheight = $(window).height();
+  var $container = $('#logo'),
+      $logo = $container.find('img'),
+      viewportheight = $(window).height();
 
-	$container.css('height', viewportheight).css('padding-top', (viewportheight - $logo.height()) / 2);
+  $container.css('height', viewportheight).css('padding-top', (viewportheight - $logo.height()) / 2);
 }
