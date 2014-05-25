@@ -127,7 +127,7 @@ def get_feed(count, lastId):
     cur.execute("SELECT id, left_username, right_username, image_filename FROM lonely_feed WHERE id > %s ORDER BY id DESC LIMIT %s", par)
     data = cur.fetchall()
     cur.close()
-    return json.dumps(data)
+    return json.dumps(data, encoding="iso-8859-1")
   except Exception, e:
     return str(e)
 
