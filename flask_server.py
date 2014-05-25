@@ -40,7 +40,6 @@ def instagram_tag_update_handler():
 @app.route('/api/getfeed', methods=['GET'])
 #@crossdomain(origin='*') # Disable this if we won't need this on prod
 def get_feed():
-  return 'Hello'
   count = request.args.get('count', 20)
   lastId = request.args.get('lastId', 0)
   return lonelyapp.get_feed(count, lastId)
