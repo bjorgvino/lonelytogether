@@ -46,13 +46,16 @@ $(function () {
     console.log('Done with images');
   }
 
-    var s = skrollr.init({
-        constants: {
-            logooffset: function() {
-                return ($(window).height() - $('#logo img').height()) / 2;
-            }
-        }
-    });
+  var s = skrollr.init({
+    constants: {
+      logooffset: function() {
+        return ($(window).height() - $('#logo img').height()) / 2;
+      }
+    },
+    mobileCheck: function() {
+      return false;
+    }
+  });
 });
 
 $(window).resize(function() {
