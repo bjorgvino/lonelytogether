@@ -42,7 +42,7 @@ def instagram_tag_update_handler():
 def get_feed():
   count = request.args.get('count', 20)
   lastId = request.args.get('lastId', 0)
-  return lonelyapp.get_feed(count, lastId)
+  return Response(response=lonelyapp.get_feed(count, lastId), status=200, mimetype="application/json")
 
 @app.route('/api/entry/<int:entryId>', methods=['GET'])
 def get_entry(entryId):
