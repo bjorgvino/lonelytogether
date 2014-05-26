@@ -131,6 +131,17 @@ def get_feed(count, lastId):
   except Exception, e:
     return str(e)
 
+def get_entry(entryId):
+  global conn
+  try:
+    cur = conn.cursor(MySQLdb.cursors.DictCursor)
+    cur.execute("SELECT id, left_username, right_username, image_filename FROM lonely_feed WHERE id = %s", (int(entryId),))
+    data = cur.fetchall()
+    cur.close()
+    return json.dumps(data, encoding="iso-8859-1")
+  except Exception, e:
+    return str(e)
+
 print "Reading configuration files"
 CONFIG = get_config('config/api.json')
 APP_CONFIG = get_config('config/app.json')

@@ -1,5 +1,5 @@
 import lonelyapp, base64, re, uuid, os
-from flask import Flask, request, redirect, url_for
+from flask import Flask, request, redirect, url_for, Response
 from flask_utils import crossdomain
 from PIL import Image
 from io import BytesIO
@@ -43,6 +43,10 @@ def get_feed():
   count = request.args.get('count', 20)
   lastId = request.args.get('lastId', 0)
   return lonelyapp.get_feed(count, lastId)
+
+@app.route('/api/entry/<int:entryId>', methods=['GET'])
+def get_entry(entryId):
+  return Response(response=lonelyapp.get_entry(entryId), status=200, mimetype="application/json")
 
 @app.route('/api/upload', methods=['POST', 'OPTIONS'])
 #@crossdomain(origin='*') # Disable this if we won't need this on prod
