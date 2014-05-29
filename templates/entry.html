@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html class="no-js">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <title>#lonelytogether</title>
+    <meta name="description" content="{{ entry.left_username }} and {{ entry.right_username }} on #lonelytogether">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="og:title" content="#lonelytogether">
+    <meta name="og:site_name" content="lonelytogether">
+    <meta name="og:url" content="http://lonelytogether.se">
+    <meta name="og:description" content="{{ entry.left_username }} and {{ entry.right_username }} on #lonelytogether">
+    <meta name="og:image" content="http://lonelytogether.se/uploads/photobooth_images/{{ entry.image_filename }}">
+    <meta name="og:app_id" content="488585834603700">
+
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/entry.css">
+
+    <!--[if lt IE 9]>
+        <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <script>window.html5 || document.write('<script src="../js/vendor/html5shiv.js"><\/script>')</script>
+    <![endif]-->
+</head>
+<body>
+
+    <header>
+        <h1>lonelytogether</h1>
+    </header>
+
+    <main>
+        <img src="//lonelytogether.se/uploads/photobooth_images/{{ entry.image_filename }}" width="640" height="480" alt="{{ entry.left_username }} and {{ entry.right_username }}" />
+        <p>{{ entry.left_username }} and {{ entry.right_username }}</p>
+    </main>
+
+    <div id="fb-root"></div>
+    <script>(function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) return;
+        js = d.createElement(s); js.id = id;
+        js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&appId=488585834603700&version=v2.0";
+        fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));</script>
+
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-12621930-5', 'lonelytogether.se');
+      ga('send', 'pageview');
+
+    </script>
+</body>
+</html>

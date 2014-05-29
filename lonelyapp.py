@@ -138,7 +138,7 @@ def get_entry(entryId):
     cur.execute("SELECT id, left_username, right_username, image_filename FROM lonely_feed WHERE id = %s", (int(entryId),))
     data = cur.fetchall()
     cur.close()
-    return json.dumps(data, encoding="iso-8859-1")
+    return data
   except Exception, e:
     return str(e)
 

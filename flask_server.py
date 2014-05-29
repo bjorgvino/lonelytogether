@@ -1,5 +1,5 @@
-import lonelyapp, base64, re, uuid, os
-from flask import Flask, request, redirect, url_for, Response
+import lonelyapp, base64, re, uuid, os, json
+from flask import Flask, request, redirect, url_for, Response, render_template
 from flask_utils import crossdomain
 from PIL import Image
 from io import BytesIO
@@ -17,17 +17,20 @@ except OSError:
   if not os.path.isdir(imageDirOriginals):
     raise
 
+
 @app.route('/api/')
 def home():
   if request.args.get('ping', None) == '':
     return "Pong!\n"  
   return "Let\'s be lonely together!\n"
 
+
 @app.route('/api/callback', methods=['GET'])
 def instagram_subscription():
   if request.args.get('hub.mode', '') == 'subscribe':
     return request.args.get('hub.challenge')
   return redirect(url_for('home'))
+
 
 @app.route('/api/callback', methods=['POST'])
 def instagram_tag_update_handler():
@@ -37,6 +40,7 @@ def instagram_tag_update_handler():
   lonelyapp.process_request(x_hub_signature, raw_response)
   return "Done\n"
 
+
 @app.route('/api/getfeed', methods=['GET'])
 #@crossdomain(origin='*') # Disable this if we won't need this on prod
 def get_feed():
@@ -44,9 +48,19 @@ def get_feed():
   lastId = request.args.get('lastId', 0)
   return Response(response=lonelyapp.get_feed(count, lastId), status=200, mimetype="application/json")
 
+
 @app.route('/api/entry/<int:entryId>', methods=['GET'])
+@crossdomain(origin='*') # Disable this if we won't need this on prod
 def get_entry(entryId):
-  return Response(response=lonelyapp.get_entry(entryId), status=200, mimetype="application/json")
+  entry = lonelyapp.get_entry(entryId)
+  return Response(response=json.dumps(entry, encoding="iso-8859-1"), status=200, mimetype="application/json")
+
+
+@app.route('/entry/<int:entryId>', methods=['GET'])
+def get_entry_templated(entryId):
+  entry = lonelyapp.get_entry(entryId)
+  return render_template('entry.html', entry=entry[0])
+
 
 @app.route('/api/upload', methods=['POST', 'OPTIONS'])
 #@crossdomain(origin='*') # Disable this if we won't need this on prod
