@@ -59,7 +59,7 @@ function fetchImages() {
 function renderImages(data) {
   for (var i in data){
     var $row = $photogrid.find('div.row:first');
-    var imageDiv = '<div class="col-sm-2"><img src="' + imageFolder + data[i].image_filename + '" alt="" /></div>';
+    var imageDiv = '<div class="col-sm-2"><a href="/entry/' + data[i].id + '"><img src="' + imageFolder + data[i].image_filename + '" alt="' + data[i].left_username + ' and ' + data[i].right_username + '" /></a></div>';
     if (lastId == 0){
       // First render
       $row.append(imageDiv);
