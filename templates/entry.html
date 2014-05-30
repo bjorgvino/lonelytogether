@@ -19,27 +19,28 @@
 
     <!--[if lt IE 9]>
         <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-        <script>window.html5 || document.write('<script src="../js/vendor/html5shiv.js"><\/script>')</script>
+        <script>window.html5 || document.write('<script src="/js/vendor/html5shiv.js"><\/script>')</script>
     <![endif]-->
 </head>
 <body>
 
     <header>
-        <h1>lonelytogether</h1>
+        <h1><a href="/">lonelytogether</a></h1>
     </header>
 
     <main>
         <img src="//lonelytogether.se/uploads/photobooth_images/{{ entry.image_filename }}" width="640" height="480" alt="{{ entry.left_username }} and {{ entry.right_username }}" />
-        <p>{{ entry.left_username }} and {{ entry.right_username }}</p>
+        <p><a href="http://instagram.com/{{ entry.left_username }}">{{ entry.left_username }}</a> and <a href="http://instagram.com/{{ entry.right_username }}">{{ entry.right_username }}</a></p>
+        <div class="fb-share-button" data-href="http://lonelytogether.se/entry/{{ entry.id }}" data-type="button"></div>
     </main>
 
     <div id="fb-root"></div>
     <script>(function(d, s, id) {
-        var js, fjs = d.getElementsByTagName(s)[0];
-        if (d.getElementById(id)) return;
-        js = d.createElement(s); js.id = id;
-        js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&appId=488585834603700&version=v2.0";
-        fjs.parentNode.insertBefore(js, fjs);
+      var js, fjs = d.getElementsByTagName(s)[0];
+      if (d.getElementById(id)) return;
+      js = d.createElement(s); js.id = id;
+      js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&appId=488585834603700&version=v2.0";
+      fjs.parentNode.insertBefore(js, fjs);
     }(document, 'script', 'facebook-jssdk'));</script>
 
     <script>
