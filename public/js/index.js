@@ -4,6 +4,7 @@ var imageFolder = '/uploads/photobooth_images/';
 //var imageFolder = 'http://lonelytogether.bjorgv.in/uploads/photobooth_images/';
 var $photogrid = $('#photogrid');
 var lastId = 0;
+var maxCount = 2000;
 
 $(function () {
   sizeHeader();
@@ -39,7 +40,7 @@ function fetchImages() {
       method: 'get',
       dataType: 'json',
       url: api + 'getfeed',
-      data: { count: 240, lastId: lastId },
+      data: { count: maxCount, lastId: lastId },
     })
   ).then(function(data) {
     if (data && data.length > 0) {
