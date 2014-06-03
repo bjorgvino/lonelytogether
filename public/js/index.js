@@ -1,7 +1,5 @@
 var api = '/api/';
 var imageFolder = '/uploads/photobooth_images/';
-//var api = 'http://localhost:5000/api/';
-//var imageFolder = 'http://lonelytogether.bjorgv.in/uploads/photobooth_images/';
 var $photogrid = $('#photogrid');
 var lastId = 0;
 var maxCount = 2000;

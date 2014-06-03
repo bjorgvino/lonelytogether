@@ -1,6 +1,5 @@
 $(function(){
   var uploadUrl = '/api/upload';
-  //var uploadUrl = 'http://localhost:5000/api/upload';
   var $username = $('input[data-name="username"]');
   var $video = $('#videodivs');
   var $preview = $('#snapshotdiv');
