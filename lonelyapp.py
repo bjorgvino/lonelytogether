@@ -10,7 +10,13 @@ def get_config(filename):
 
 def get_database_connection():
   print "Connecting to database"
-  return MySQLdb.connect(host=DATABASE_CONFIG['host'], user=DATABASE_CONFIG['username'], passwd=DATABASE_CONFIG['password'], db=DATABASE_CONFIG['db'])
+  conn = None
+  try:
+    conn = MySQLdb.connect(host=DATABASE_CONFIG['host'], user=DATABASE_CONFIG['username'], passwd=DATABASE_CONFIG['password'], db=DATABASE_CONFIG['db'])
+  except Exception, e:
+    print str(e)
+  finally:
+    return conn
 
 def get_reactor():
   print "Creating subscriptions reactor"
@@ -64,8 +70,9 @@ def process_tag_update(result):
     except Exception, e:
       print "Error processing tag update"
       print str(e)
-    finally:      
-      conn.close()
+    finally:
+      if conn is not None:
+        conn.close()
   else:
     print "Error when getting data from API"
 
@@ -85,7 +92,8 @@ def get_random_photobooth_entry():
     print "Error getting random photobooth entry"
     print str(e)
   finally:
-    conn.close()
+    if conn is not None:
+      conn.close()
   return data
 
 def save_photobooth_entry(username, imageFilename, randomEntryId=0):
@@ -102,7 +110,8 @@ def save_photobooth_entry(username, imageFilename, randomEntryId=0):
     print "Error saving photobooth entry"
     print str(e)
   finally:
-    conn.close()
+    if conn is not None:
+      conn.close()
   return 0
 
 def save_lonely_feed_entry(username, username2, image_filename, source, source_id):
@@ -119,12 +128,12 @@ def save_lonely_feed_entry(username, username2, image_filename, source, source_i
     print "Error saving lonely feed entry"
     print str(e)
   finally:
-    conn.close()
+    if conn is not None:
+      conn.close()
   return 0
 
 def get_feed(count, lastId):
   try:
-    print lastId
     par = (int(lastId), int(count))
     conn = get_database_connection()
     cur = conn.cursor(MySQLdb.cursors.DictCursor)
@@ -133,9 +142,11 @@ def get_feed(count, lastId):
     cur.close()
     return json.dumps(data, encoding="iso-8859-1")
   except Exception, e:
+    print str(e)
     return str(e)
   finally:
-    conn.close()
+    if conn is not None:
+      conn.close()
 
 def get_entry(entryId):
   try:
@@ -148,7 +159,8 @@ def get_entry(entryId):
   except Exception, e:
     return str(e)
   finally:
-    conn.close()
+    if conn is not None:
+      conn.close()
 
 print "Reading configuration files"
 CONFIG = get_config('config/api.json')
