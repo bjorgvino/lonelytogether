@@ -1,6 +1,5 @@
 import lonelyapp, base64, re, uuid, os, json
 from flask import Flask, request, redirect, url_for, Response, render_template
-from flask_utils import crossdomain
 from PIL import Image
 from io import BytesIO
 
@@ -56,7 +55,6 @@ def instagram_tag_update_handler():
 
 
 @app.route('/api/getfeed', methods=['GET'])
-#@crossdomain(origin='*') # Disable this if we won't need this on prod
 def get_feed():
   count = request.args.get('count', 20)
   lastId = request.args.get('lastId', 0)
@@ -64,7 +62,6 @@ def get_feed():
 
 
 @app.route('/api/entry/<int:entryId>', methods=['GET'])
-@crossdomain(origin='*') # Disable this if we won't need this on prod
 def get_entry(entryId):
   entry = lonelyapp.get_entry(entryId)
   return Response(response=json.dumps(entry, encoding="iso-8859-1"), status=200, mimetype="application/json")
@@ -77,7 +74,6 @@ def get_entry_templated(entryId):
 
 
 @app.route('/api/upload', methods=['POST', 'OPTIONS'])
-#@crossdomain(origin='*') # Disable this if we won't need this on prod
 def photobooth_upload_handler():
   # Get post data: Username and image data
   dataUrl = request.form['dataUrl']
