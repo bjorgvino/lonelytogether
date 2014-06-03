@@ -4,9 +4,12 @@ from flask_utils import crossdomain
 from PIL import Image
 from io import BytesIO
 
-app = Flask(__name__)
-dataUrlPattern = re.compile('data:image/(png|jpeg);base64,(.*)$')
+if __name__ == '__main__':
+  app = Flask(__name__, static_url_path='', static_folder='public')
+else:
+  app = Flask(__name__)
 
+dataUrlPattern = re.compile('data:image/(png|jpeg);base64,(.*)$')
 publicImageDir = os.path.join('uploads', 'photobooth_images')
 imageDir = os.path.join(os.path.dirname(__file__), 'public', publicImageDir)
 imageDirOriginals = os.path.join(imageDir, 'originals')
@@ -16,6 +19,17 @@ try:
 except OSError:
   if not os.path.isdir(imageDirOriginals):
     raise
+
+@app.route('/')
+def root():
+  # Check if this method is used on production...we probably don't want that? Or do we? Then we could use instead render_template('index.html')
+  return app.send_static_file('index.html')
+
+
+@app.route('/photobooth/')
+def photobooth():
+  # Check if this method is used on production...we probably don't want that? Or do we? Then we could use instead render_template('index.html')
+  return app.send_static_file('photobooth/index.html')
 
 
 @app.route('/api/')
