@@ -11,3 +11,8 @@ body {
 #videodivs, #snapshotdiv, #resultdiv {
   width: 640px;
 }
+
+#loaderImage {
+  position: relative;
+  top: -307px;
+}
