@@ -36,6 +36,10 @@ $(function(){
   }
 
   function submitImage(){
+    if (!$username.val()){
+      console.log('Username missing...aborting.')
+      return;
+    }
     console.log('Sending image to server....');
     submitting = true;
     startAnimation();
