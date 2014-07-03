@@ -29,7 +29,7 @@
     </header>
 
     <main>
-        <img src="//lonelytogether.se/uploads/photobooth_images/{{ entry.image_filename }}" width="640" height="480" alt="{{ entry.left_username }} and {{ entry.right_username }}" />
+        <img src="/uploads/{{ entry.source }}_images/{{ entry.image_filename }}" width="640" height="480" alt="{{ entry.left_username }} and {{ entry.right_username }}" />
         <p><a href="http://instagram.com/{{ entry.left_username }}">{{ entry.left_username }}</a> and <a href="http://instagram.com/{{ entry.right_username }}">{{ entry.right_username }}</a></p>
         <div class="fb-share-button" data-href="http://lonelytogether.se/entry/{{ entry.id }}" data-type="button"></div>
     </main>

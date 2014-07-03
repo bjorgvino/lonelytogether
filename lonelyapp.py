@@ -1,8 +1,19 @@
-import MySQLdb, json, requests
+import MySQLdb, json, requests, uuid, os
 from instagram import client, subscriptions
+from StringIO import StringIO
+from PIL import Image
 
 api = None
 reactor = None
+publicImageDir = os.path.join('uploads', 'instagram_images')
+imageDir = os.path.join(os.path.dirname(__file__), 'public', publicImageDir)
+imageDirOriginals = os.path.join(imageDir, 'originals')
+
+try: 
+  os.makedirs(imageDirOriginals)
+except OSError:
+  if not os.path.isdir(imageDirOriginals):
+    raise
 
 def get_config(filename):
   with open(filename) as json_file:
@@ -46,40 +57,69 @@ def process_request(x_hub_signature, raw_response):
 
 def process_tag_update(result):
   # Fetch images with tag 
-  payload = {'count': 5, 'client_id': CONFIG['client_id']}
+  payload = {'count': 1, 'client_id': CONFIG['client_id']}
   r = requests.get('https://api.instagram.com/v1/tags/' + result['object_id'] + '/media/recent', params=payload)
   if r.status_code == 200:
     data = r.json()
     try:
-      conn = get_database_connection()
       for entry in data['data']:
         if entry['type'] == 'image':
           try:
-            cur = conn.cursor()
-            image_url = entry['images']['standard_resolution']['url']
+            # Collect data
             entry_id = entry['id']
             username = entry['user']['username']
-            cur.execute("""INSERT INTO posts (id, username, image_url) VALUES (%s, %s, %s)""", (entry_id, username, image_url))
-            cur.close()
-            conn.commit()
-            print "Saved tag update to database"
+            image_url = entry['images']['standard_resolution']['url']
+            imageFilename = str(uuid.uuid4()) + '.jpg'
+            
+            # Fetch image and save to disk
+            r = requests.get(image_url)
+            i = Image.open(StringIO(r.content))
+            i.save(os.path.join(imageDirOriginals, imageFilename))
+
+            # Fetch random entry from database
+            randomEntry = get_random_instagram_entry()
+
+            if randomEntry is None:
+              # Save info in database and return
+              print "Saving image info for first instagram image"
+              save_instagram_entry(username, imageFilename, image_url, entry_id)
+              print "Saved first tag update to database"
+            else:
+              # Save info in database and carry on
+              print "Saving image info before pairing"
+              current_id = save_instagram_entry(username, imageFilename, image_url, entry_id, randomEntry['id'])
+              if current_id > 0:
+                # Cropping original image
+                width, height = i.size
+                left = width/4
+                top = 0
+                right = 3 * left
+                bottom = height
+                cropped = i.crop((left, top, right, bottom))
+
+                # Cropping paired image
+                i2 = Image.open(os.path.join(imageDirOriginals, randomEntry['image_filename']))
+                cropped2 = i2.crop((left, top, right, bottom))
+
+                # Combine images and save the resulting image to disk
+                combined = Image.new('RGB', (640, 480))
+                combined.paste(cropped, (0, 0))
+                combined.paste(cropped2, (320, 0))
+                combined.save(os.path.join(imageDir, imageFilename))
+
+                # Save paired info database
+                save_lonely_feed_entry(username, randomEntry['username'], imageFilename, 'instagram', current_id)
+                print "Saved tag update to database"
+              else:
+                print "Duplicate entry, not saved to database"
           except Exception, e:
             print "Error processing tag update"
             print str(e)
-            conn.rollback()
     except Exception, e:
       print "Error processing tag update"
       print str(e)
-    finally:
-      if conn is not None:
-        conn.close()
   else:
     print "Error when getting data from API"
-
-  # Get current max id
-  # c.execute("""SELECT max_tag_id FROM posts ORDER BY created_at DESC LIMIT 0, 1""")
-  # max_tag_id = c.fetchone()
-  # print max_tag_id
 
 def get_random_photobooth_entry():
   try:
@@ -91,8 +131,25 @@ def get_random_photobooth_entry():
   except Exception, e:
     print "Error getting random photobooth entry"
     print str(e)
+    data = None
   finally:
-    if conn is not None:
+    if conn is not None and conn.open:
+      conn.close()
+  return data
+
+def get_random_instagram_entry():
+  try:
+    conn = get_database_connection()
+    cur = conn.cursor(MySQLdb.cursors.DictCursor)
+    cur.execute("""SELECT r1.id, r1.username, r1.image_filename FROM posts AS r1 JOIN (SELECT (RAND() * (SELECT MAX(id) FROM posts)) AS id) AS r2 WHERE r1.id >= r2.id ORDER BY r1.id ASC LIMIT 1;""")
+    data = cur.fetchone()
+    cur.close()
+  except Exception, e:
+    print "Error getting random instagram entry"
+    print str(e)
+    data = None
+  finally:
+    if conn is not None and conn.open:
       conn.close()
   return data
 
@@ -110,7 +167,25 @@ def save_photobooth_entry(username, imageFilename, randomEntryId=0):
     print "Error saving photobooth entry"
     print str(e)
   finally:
-    if conn is not None:
+    if conn is not None and conn.open:
+      conn.close()
+  return 0
+
+def save_instagram_entry(username, imageFilename, imageUrl, postId, randomEntryId=0):
+  print "Saving instagram entry"
+  try:
+    conn = get_database_connection()
+    cur = conn.cursor()
+    cur.execute("""INSERT INTO posts (username, image_filename, post_id, image_url, paired_id) VALUES (%s, %s, %s, %s, %s)""", (username, imageFilename, postId, imageUrl, randomEntryId))
+    insert_id = cur.lastrowid
+    cur.close()
+    conn.commit()
+    return insert_id
+  except Exception, e:
+    print "Error saving photobooth entry"
+    print str(e)
+  finally:
+    if conn is not None and conn.open:
       conn.close()
   return 0
 
@@ -128,7 +203,7 @@ def save_lonely_feed_entry(username, username2, image_filename, source, source_i
     print "Error saving lonely feed entry"
     print str(e)
   finally:
-    if conn is not None:
+    if conn is not None and conn.open:
       conn.close()
   return 0
 
@@ -137,7 +212,7 @@ def get_feed(count, lastId):
     par = (int(lastId), int(count))
     conn = get_database_connection()
     cur = conn.cursor(MySQLdb.cursors.DictCursor)
-    cur.execute("SELECT id, left_username, right_username, image_filename FROM lonely_feed WHERE id > %s ORDER BY id DESC LIMIT %s", par)
+    cur.execute("SELECT id, left_username, right_username, image_filename, source FROM lonely_feed WHERE id > %s ORDER BY id DESC LIMIT %s", par)
     data = cur.fetchall()
     cur.close()
     return json.dumps(data, encoding="iso-8859-1")
@@ -145,26 +220,26 @@ def get_feed(count, lastId):
     print str(e)
     return str(e)
   finally:
-    if conn is not None:
+    if conn is not None and conn.open:
       conn.close()
 
 def get_entry(entryId):
   try:
     conn = get_database_connection()
     cur = conn.cursor(MySQLdb.cursors.DictCursor)
-    cur.execute("SELECT id, left_username, right_username, image_filename FROM lonely_feed WHERE id = %s", (int(entryId),))
+    cur.execute("SELECT id, left_username, right_username, image_filename, source FROM lonely_feed WHERE id = %s", (int(entryId),))
     data = cur.fetchall()
     cur.close()
     return data
   except Exception, e:
     return str(e)
   finally:
-    if conn is not None:
+    if conn is not None and conn.open:
       conn.close()
 
 print "Reading configuration files"
 CONFIG = get_config('config/api.json')
-APP_CONFIG = get_config('config/app.json')
+# APP_CONFIG = get_config('config/app.json')
 DATABASE_CONFIG = get_config('config/db.json')
 
 api = get_api()

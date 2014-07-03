@@ -21,13 +21,13 @@ except OSError:
 
 @app.route('/')
 def root():
-  # Check if this method is used on production...we probably don't want that? Or do we? Then we could use instead render_template('index.html')
+  # Check if this method is used on production...we probably don't want that? Or do we? Then we could use render_template('index.html') instead
   return app.send_static_file('index.html')
 
 
 @app.route('/photobooth/')
 def photobooth():
-  # Check if this method is used on production...we probably don't want that? Or do we? Then we could use instead render_template('index.html')
+  # Check if this method is used on production...we probably don't want that? Or do we? Then we could use render_template('index.html') instead
   return app.send_static_file('photobooth/index.html')
 
 
@@ -127,3 +127,4 @@ def photobooth_upload_handler():
 
 if __name__ == '__main__':
     app.run(debug=True)
+    #app.run(host='0.0.0.0') # For testing against instagram api
