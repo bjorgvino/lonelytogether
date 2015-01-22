@@ -126,5 +126,6 @@ def photobooth_upload_handler():
     return "Error", 500
 
 if __name__ == '__main__':
+    lonelyapp.init(debug=True)
     app.run(debug=True)
     #app.run(host='0.0.0.0') # For testing against instagram api

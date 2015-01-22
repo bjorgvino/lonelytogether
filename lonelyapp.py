@@ -1,10 +1,23 @@
-import MySQLdb, json, requests, uuid, os
+import pymysql, json, requests, uuid, os
 from instagram import client, subscriptions
 from StringIO import StringIO
 from PIL import Image
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from lonelydatabase import Base, PhotoboothEntry, InstagramEntry, FeedEntry
 
+# Define module variables
+session = None
 api = None
 reactor = None
+debugMode = False
+CONFIG = {
+  "client_id": "",
+  "client_secret": "",
+  "redirect_uri": "http://localhost:8080/oauth_callback"
+}
+
+# Make sure all image directories exist
 publicImageDir = os.path.join('uploads', 'instagram_images')
 imageDir = os.path.join(os.path.dirname(__file__), 'public', publicImageDir)
 imageDirOriginals = os.path.join(imageDir, 'originals')
@@ -15,19 +28,24 @@ except OSError:
   if not os.path.isdir(imageDirOriginals):
     raise
 
+def init(debug):
+  global debugMode
+  debugMode = debug
+  if debugMode:
+    connectionstring = 'sqlite:///lonelytogether.db'
+  else:
+    CONFIG = get_config('config/api.json')
+    DB = get_config('config/db.json')
+    connectionstring = 'mysql+pymysql://{0}:{1}@{2}/{3}'.format(DB['username'], DB['password'], DB['host'], DB['db'])
+  engine = create_engine(connectionstring)
+  Base.metadata.bind = engine
+  DBSession = sessionmaker(bind=engine)
+  global session
+  session = DBSession()
+
 def get_config(filename):
   with open(filename) as json_file:
     return json.load(json_file)
-
-def get_database_connection():
-  print "Connecting to database"
-  conn = None
-  try:
-    conn = MySQLdb.connect(host=DATABASE_CONFIG['host'], user=DATABASE_CONFIG['username'], passwd=DATABASE_CONFIG['password'], db=DATABASE_CONFIG['db'])
-  except Exception, e:
-    print str(e)
-  finally:
-    return conn
 
 def get_reactor():
   print "Creating subscriptions reactor"
@@ -124,7 +142,7 @@ def process_tag_update(result):
 def get_random_photobooth_entry():
   try:
     conn = get_database_connection()
-    cur = conn.cursor(MySQLdb.cursors.DictCursor)
+    cur = conn.cursor(pymysql.cursors.DictCursor)
     cur.execute("""SELECT r1.id, r1.username, r1.image_filename FROM photobooth_posts AS r1 JOIN (SELECT (RAND() * (SELECT MAX(id) FROM photobooth_posts)) AS id) AS r2 WHERE r1.id >= r2.id ORDER BY r1.id ASC LIMIT 1;""")
     data = cur.fetchone()
     cur.close()
@@ -140,7 +158,7 @@ def get_random_photobooth_entry():
 def get_random_instagram_entry():
   try:
     conn = get_database_connection()
-    cur = conn.cursor(MySQLdb.cursors.DictCursor)
+    cur = conn.cursor(pymysql.cursors.DictCursor)
     cur.execute("""SELECT r1.id, r1.username, r1.image_filename FROM posts AS r1 JOIN (SELECT (RAND() * (SELECT MAX(id) FROM posts)) AS id) AS r2 WHERE r1.id >= r2.id ORDER BY r1.id ASC LIMIT 1;""")
     data = cur.fetchone()
     cur.close()
@@ -210,23 +228,27 @@ def save_lonely_feed_entry(username, username2, image_filename, source, source_i
 def get_feed(count, lastId):
   try:
     par = (int(lastId), int(count))
-    conn = get_database_connection()
-    cur = conn.cursor(MySQLdb.cursors.DictCursor)
-    cur.execute("SELECT id, left_username, right_username, image_filename, source FROM lonely_feed WHERE id > %s ORDER BY id DESC LIMIT %s", par)
-    data = cur.fetchall()
-    cur.close()
+    #global session
+    data = session.query(FeedEntry).filter(FeedEntry.id > lastId).limit(count).all()
+
+    #conn = get_database_connection()
+    #cur = conn.cursor(pymysql.cursors.DictCursor)
+    #cur.execute("SELECT id, left_username, right_username, image_filename, source FROM lonely_feed WHERE id > %s ORDER BY id DESC LIMIT %s", par)
+    #data = cur.fetchall()
+    #cur.close()
+    print data
     return json.dumps(data, encoding="iso-8859-1")
   except Exception, e:
     print str(e)
     return str(e)
-  finally:
-    if conn is not None and conn.open:
-      conn.close()
+  #finally:
+    #if conn is not None and conn.open:
+    #  conn.close()
 
 def get_entry(entryId):
   try:
     conn = get_database_connection()
-    cur = conn.cursor(MySQLdb.cursors.DictCursor)
+    cur = conn.cursor(pymysql.cursors.DictCursor)
     cur.execute("SELECT id, left_username, right_username, image_filename, source FROM lonely_feed WHERE id = %s", (int(entryId),))
     data = cur.fetchall()
     cur.close()
@@ -236,11 +258,6 @@ def get_entry(entryId):
   finally:
     if conn is not None and conn.open:
       conn.close()
-
-print "Reading configuration files"
-CONFIG = get_config('config/api.json')
-# APP_CONFIG = get_config('config/app.json')
-DATABASE_CONFIG = get_config('config/db.json')
 
 api = get_api()
 reactor = get_reactor()
