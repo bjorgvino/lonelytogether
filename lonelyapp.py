@@ -4,7 +4,7 @@ from StringIO import StringIO
 from PIL import Image
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from lonelydatabase import Base, PhotoboothEntry, InstagramEntry, FeedEntry
+from lonelydatabase import Base, PhotoboothEntry, InstagramEntry, FeedEntry, row2dict
 
 # Define module variables
 session = None
@@ -236,8 +236,13 @@ def get_feed(count, lastId):
     #cur.execute("SELECT id, left_username, right_username, image_filename, source FROM lonely_feed WHERE id > %s ORDER BY id DESC LIMIT %s", par)
     #data = cur.fetchall()
     #cur.close()
-    print data
-    return json.dumps(data, encoding="iso-8859-1")
+    
+    dictRows = []
+    for obj in data:
+      dictRows.append(row2dict(obj))
+    return json.dumps(dictRows, encoding="iso-8859-1")
+    #return json.dumps(dictRows, encoding="iso-8859-1", default=lambda o: o.__dict__, sort_keys=True, indent=4)
+    #return json.dumps(data, encoding="iso-8859-1")
   except Exception, e:
     print str(e)
     return str(e)

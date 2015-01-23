@@ -47,7 +47,8 @@ function fetchImages() {
     }
   }, function(error){
     if (typeof(window.console) !== "undefined") {
-      console.log(error);
+      console.log("Status: ", error.status);
+      console.log("Response: ", error.responseText);
     }
   }).done(function() {
     // Schedule next poll

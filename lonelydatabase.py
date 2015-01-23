@@ -5,6 +5,8 @@ from sqlalchemy.sql.expression import func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import create_engine
 
+row2dict = lambda r: {c.name: str(getattr(r, c.name)) for c in r.__table__.columns}
+
 BigIntegerType = BigInteger()
 BigIntegerType = BigIntegerType.with_variant(mysql.BIGINT(), 'mysql')
 BigIntegerType = BigIntegerType.with_variant(sqlite.INTEGER(), 'sqlite')
