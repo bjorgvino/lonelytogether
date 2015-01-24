@@ -70,7 +70,7 @@ def get_entry(entryId):
 @app.route('/entry/<int:entryId>', methods=['GET'])
 def get_entry_templated(entryId):
   entry = lonelyapp.get_entry(entryId)
-  return render_template('entry.html', entry=entry[0])
+  return render_template('entry.html', entry=entry)
 
 
 @app.route('/api/upload', methods=['POST', 'OPTIONS'])

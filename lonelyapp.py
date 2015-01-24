@@ -14,7 +14,7 @@ debugMode = False
 CONFIG = {
   "client_id": "",
   "client_secret": "",
-  "redirect_uri": "http://localhost:8080/oauth_callback"
+  "redirect_uri": ""
 }
 
 # Make sure all image directories exist
@@ -227,42 +227,23 @@ def save_lonely_feed_entry(username, username2, image_filename, source, source_i
 
 def get_feed(count, lastId):
   try:
-    par = (int(lastId), int(count))
-    #global session
-    data = session.query(FeedEntry).filter(FeedEntry.id > lastId).limit(count).all()
-
-    #conn = get_database_connection()
-    #cur = conn.cursor(pymysql.cursors.DictCursor)
-    #cur.execute("SELECT id, left_username, right_username, image_filename, source FROM lonely_feed WHERE id > %s ORDER BY id DESC LIMIT %s", par)
-    #data = cur.fetchall()
-    #cur.close()
-    
-    dictRows = []
-    for obj in data:
-      dictRows.append(row2dict(obj))
-    return json.dumps(dictRows, encoding="iso-8859-1")
-    #return json.dumps(dictRows, encoding="iso-8859-1", default=lambda o: o.__dict__, sort_keys=True, indent=4)
-    #return json.dumps(data, encoding="iso-8859-1")
+    feed = session.query(FeedEntry).filter(FeedEntry.id > lastId).order_by(FeedEntry.id.desc()).limit(count).all()
+    feedDict = []
+    for feedEntry in feed:
+      feedDict.append(row2dict(feedEntry))
+    return json.dumps(feedDict, encoding="iso-8859-1")
   except Exception, e:
     print str(e)
     return str(e)
-  #finally:
-    #if conn is not None and conn.open:
-    #  conn.close()
 
 def get_entry(entryId):
   try:
-    conn = get_database_connection()
-    cur = conn.cursor(pymysql.cursors.DictCursor)
-    cur.execute("SELECT id, left_username, right_username, image_filename, source FROM lonely_feed WHERE id = %s", (int(entryId),))
-    data = cur.fetchall()
-    cur.close()
-    return data
+    dbEntry = session.query(FeedEntry).filter(FeedEntry.id == entryId).first()
+    entry = row2dict(dbEntry)
+    return entry
   except Exception, e:
+    print str(e)
     return str(e)
-  finally:
-    if conn is not None and conn.open:
-      conn.close()
 
 api = get_api()
 reactor = get_reactor()
