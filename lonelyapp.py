@@ -1,16 +1,19 @@
-import pymysql, json, requests, uuid, os
+import json, requests, uuid, os
 from instagram import client, subscriptions
 from StringIO import StringIO
 from PIL import Image
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.sql.expression import func
 from lonelydatabase import Base, PhotoboothEntry, InstagramEntry, FeedEntry, row2dict
+from contextlib import contextmanager
 
 # Define module variables
-session = None
 api = None
 reactor = None
 debugMode = False
+randomFunc = None
+DBSession = None
 CONFIG = {
   "client_id": "",
   "client_secret": "",
@@ -28,20 +31,35 @@ except OSError:
   if not os.path.isdir(imageDirOriginals):
     raise
 
+@contextmanager
+def session_scope():
+  """Provide a transactional scope around a series of operations."""
+  session = DBSession()
+  try:
+    yield session
+    session.commit()
+  except:
+    session.rollback()
+    raise
+  finally:
+    session.close()
+
 def init(debug):
   global debugMode
+  global randomFunc
   debugMode = debug
   if debugMode:
     connectionstring = 'sqlite:///lonelytogether.db'
+    randomFunc = func.random
   else:
     CONFIG = get_config('config/api.json')
     DB = get_config('config/db.json')
     connectionstring = 'mysql+pymysql://{0}:{1}@{2}/{3}'.format(DB['username'], DB['password'], DB['host'], DB['db'])
+    randomFunc = func.rand
   engine = create_engine(connectionstring)
   Base.metadata.bind = engine
+  global DBSession
   DBSession = sessionmaker(bind=engine)
-  global session
-  session = DBSession()
 
 def get_config(filename):
   with open(filename) as json_file:
@@ -140,20 +158,15 @@ def process_tag_update(result):
     print "Error when getting data from API"
 
 def get_random_photobooth_entry():
-  try:
-    conn = get_database_connection()
-    cur = conn.cursor(pymysql.cursors.DictCursor)
-    cur.execute("""SELECT r1.id, r1.username, r1.image_filename FROM photobooth_posts AS r1 JOIN (SELECT (RAND() * (SELECT MAX(id) FROM photobooth_posts)) AS id) AS r2 WHERE r1.id >= r2.id ORDER BY r1.id ASC LIMIT 1;""")
-    data = cur.fetchone()
-    cur.close()
-  except Exception, e:
-    print "Error getting random photobooth entry"
-    print str(e)
-    data = None
-  finally:
-    if conn is not None and conn.open:
-      conn.close()
-  return data
+  with session_scope() as session:
+    try:
+      dbEntry = session.query(PhotoboothEntry).order_by(randomFunc()).limit(1).first()
+      entry = row2dict(dbEntry)
+      return entry
+    except Exception, e:
+      print "Error getting random photobooth entry"
+      print str(e)
+      return None
 
 def get_random_instagram_entry():
   try:
@@ -173,21 +186,17 @@ def get_random_instagram_entry():
 
 def save_photobooth_entry(username, imageFilename, randomEntryId=0):
   print "Saving photobooth entry"
-  try:
-    conn = get_database_connection()
-    cur = conn.cursor()
-    cur.execute("""INSERT INTO photobooth_posts (username, image_filename, paired_id) VALUES (%s, %s, %s)""", (username, imageFilename, randomEntryId))
-    insert_id = cur.lastrowid
-    cur.close()
-    conn.commit()
-    return insert_id
-  except Exception, e:
-    print "Error saving photobooth entry"
-    print str(e)
-  finally:
-    if conn is not None and conn.open:
-      conn.close()
-  return 0
+  with session_scope() as session:
+    try:
+      entry = PhotoboothEntry(username=username, image_filename=imageFilename, paired_id=randomEntryId)
+      session.add(entry)
+      session.commit()
+      print "Inserted ID=" + str(entry.id)
+      return entry.id
+    except Exception, e:
+      print "Error saving photobooth entry"
+      print str(e)
+    return 0
 
 def save_instagram_entry(username, imageFilename, imageUrl, postId, randomEntryId=0):
   print "Saving instagram entry"
@@ -209,41 +218,39 @@ def save_instagram_entry(username, imageFilename, imageUrl, postId, randomEntryI
 
 def save_lonely_feed_entry(username, username2, image_filename, source, source_id):
   print "Saving lonely feed entry"
-  try:
-    conn = get_database_connection()
-    cur = conn.cursor()
-    cur.execute("""INSERT INTO lonely_feed (left_username, right_username, image_filename, source, source_id) VALUES (%s, %s, %s, %s, %s)""", (username, username2, image_filename, source, source_id))
-    insert_id = cur.lastrowid
-    cur.close()
-    conn.commit()
-    return insert_id
-  except Exception, e:
-    print "Error saving lonely feed entry"
-    print str(e)
-  finally:
-    if conn is not None and conn.open:
-      conn.close()
-  return 0
+  with session_scope() as session:
+    try:
+      entry = FeedEntry(left_username=username, right_username=username2, image_filename=image_filename, source=source, source_id=source_id)
+      session.add(entry)
+      session.commit()
+      print "Inserted ID=" + str(entry.id)
+      return entry.id
+    except Exception, e:
+      print "Error saving lonely feed entry"
+      print str(e)
+    return 0
 
 def get_feed(count, lastId):
-  try:
-    feed = session.query(FeedEntry).filter(FeedEntry.id > lastId).order_by(FeedEntry.id.desc()).limit(count).all()
-    feedDict = []
-    for feedEntry in feed:
-      feedDict.append(row2dict(feedEntry))
-    return json.dumps(feedDict, encoding="iso-8859-1")
-  except Exception, e:
-    print str(e)
-    return str(e)
+  with session_scope() as session:
+    try:
+      feed = session.query(FeedEntry).filter(FeedEntry.id > lastId).order_by(FeedEntry.id.desc()).limit(count).all()
+      feedDict = []
+      for feedEntry in feed:
+        feedDict.append(row2dict(feedEntry))
+      return json.dumps(feedDict, encoding="iso-8859-1")
+    except Exception, e:
+      print str(e)
+      return str(e)
 
 def get_entry(entryId):
-  try:
-    dbEntry = session.query(FeedEntry).filter(FeedEntry.id == entryId).first()
-    entry = row2dict(dbEntry)
-    return entry
-  except Exception, e:
-    print str(e)
-    return str(e)
+  with session_scope() as session:
+    try:
+      dbEntry = session.query(FeedEntry).filter(FeedEntry.id == entryId).first()
+      entry = row2dict(dbEntry)
+      return entry
+    except Exception, e:
+      print str(e)
+      return str(e)
 
 api = get_api()
 reactor = get_reactor()
