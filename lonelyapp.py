@@ -169,20 +169,15 @@ def get_random_photobooth_entry():
       return None
 
 def get_random_instagram_entry():
-  try:
-    conn = get_database_connection()
-    cur = conn.cursor(pymysql.cursors.DictCursor)
-    cur.execute("""SELECT r1.id, r1.username, r1.image_filename FROM posts AS r1 JOIN (SELECT (RAND() * (SELECT MAX(id) FROM posts)) AS id) AS r2 WHERE r1.id >= r2.id ORDER BY r1.id ASC LIMIT 1;""")
-    data = cur.fetchone()
-    cur.close()
-  except Exception, e:
-    print "Error getting random instagram entry"
-    print str(e)
-    data = None
-  finally:
-    if conn is not None and conn.open:
-      conn.close()
-  return data
+  with session_scope() as session:
+    try:
+      dbEntry = session.query(InstagramEntry).order_by(randomFunc()).limit(1).first()
+      entry = row2dict(dbEntry)
+      return entry
+    except Exception, e:
+      print "Error getting random instagram entry"
+      print str(e)
+      return None
 
 def save_photobooth_entry(username, imageFilename, randomEntryId=0):
   print "Saving photobooth entry"
@@ -200,21 +195,17 @@ def save_photobooth_entry(username, imageFilename, randomEntryId=0):
 
 def save_instagram_entry(username, imageFilename, imageUrl, postId, randomEntryId=0):
   print "Saving instagram entry"
-  try:
-    conn = get_database_connection()
-    cur = conn.cursor()
-    cur.execute("""INSERT INTO posts (username, image_filename, post_id, image_url, paired_id) VALUES (%s, %s, %s, %s, %s)""", (username, imageFilename, postId, imageUrl, randomEntryId))
-    insert_id = cur.lastrowid
-    cur.close()
-    conn.commit()
-    return insert_id
-  except Exception, e:
-    print "Error saving photobooth entry"
-    print str(e)
-  finally:
-    if conn is not None and conn.open:
-      conn.close()
-  return 0
+  with session_scope() as session:
+    try:
+      entry = InstagramEntry(username=username, image_filename=imageFilename,  image_url=imageUrl, post_id=postId, paired_id=randomEntryId)
+      session.add(entry)
+      session.commit()
+      print "Inserted ID=" + str(entry.id)
+      return entry.id
+    except Exception, e:
+      print "Error saving photobooth entry"
+      print str(e)
+    return 0
 
 def save_lonely_feed_entry(username, username2, image_filename, source, source_id):
   print "Saving lonely feed entry"
