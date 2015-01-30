@@ -34,7 +34,7 @@ def photobooth():
 @app.route('/api/')
 def home():
   if request.args.get('ping', None) == '':
-    return "Pong!!"  
+    return "Pong!"  
   return "Let\'s be lonely together!\n"
 
 
