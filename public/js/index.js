@@ -57,10 +57,11 @@ function fetchImages() {
 }
 
 function renderImages(data) {
-  var $row = $photogrid.find('div.row:first');
-  var rows = '';
+  var imgHtml = '';
+
   for (var i in data) {
-    rows += '<div class="col-sm-2"><a href="/entry/' + data[i].id + '"><img src="' + imageFolder + data[i].source + '_images/' + data[i].image_filename + '" alt="' + data[i].left_username + ' and ' + data[i].right_username + '" /></a></div>';
+    imgHtml += '<li><a href="/entry/' + data[i].id + '"><img src="' + imageFolder + data[i].source + '_images/' + data[i].image_filename + '" alt="' + data[i].left_username + ' and ' + data[i].right_username + '" /></a></li>';
   }
-  $row.prepend(rows);
+
+  $photogrid.prepend(imgHtml);
 }
