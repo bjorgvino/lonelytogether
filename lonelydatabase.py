@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import datetime
 from sqlalchemy import Column, Index, BigInteger, String, TIMESTAMP
 from sqlalchemy.dialects import mysql, sqlite

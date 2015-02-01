@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import lonelyapp, base64, re, uuid, os, json
 from flask import Flask, request, redirect, url_for, Response, render_template
 from PIL import Image
