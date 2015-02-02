@@ -22,7 +22,7 @@ $(function () {
 
 $(window).resize(function() {
   sizeHeader();
-})
+});
 
 function sizeHeader() {
   var $container = $('#logo'),
