@@ -54,17 +54,40 @@ p {
   padding: 0;
 }
 
+/* mobile first */
 #photogrid li {
-  width: 16.66667%;
+  width: 100%;
   padding: 10px;
 }
 
-#photogrid li.double {
-  width: 33.33333%;
+/* tablets */
+@media (min-width: 768px) {
+  #photogrid li {
+    width: 25%;
+  }
+
+  #photogrid li.double {
+    width: 50%;
+  }
+
+  #photogrid li.selected {
+    width: 75%;
+  }
 }
 
-#photogrid li.selected {
-  width: 50%;
+/* desktop */
+@media (min-width: 992px) {
+  #photogrid li {
+    width: 16.66667%;
+  }
+
+  #photogrid li.double {
+    width: 33.33333%;
+  }
+
+  #photogrid li.selected {
+    width: 50%;
+  }
 }
 
 #photogrid a {
