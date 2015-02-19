@@ -65,12 +65,15 @@ function fetchImages() {
 
 function renderImages(data) {
   var elements = [];
-
+  var count = 0;
   for (var i in data) {
     var imgSrc = imageFolder + data[i].source + '_images/' + data[i].image_filename;
     var imgAlt = data[i].left_username + ' and ' + data[i].right_username;
     var element = document.createElement('li');
     element.innerHTML = '<a href="/entry/' + data[i].id + '"><img src="' + imgSrc + '" alt="' + imgAlt + '" /></a>';
+    if (count++ % 5  == 1) {
+      element.className = 'double';
+    }
     elements.push(element);
   }
 
