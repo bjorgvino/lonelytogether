@@ -1,27 +1,31 @@
 header h1 {
-	margin: 20px;
+  margin: 20px;
 }
+
 header a {
-	display: block;
-	width: 100px;
-	height: 75px;
-	background: url('/img/lonelytogetherlogo.png') no-repeat top left;
-	background-size: contain;
-	overflow: hidden;
-	text-indent: 201px;
+  display: block;
+  width: 100px;
+  height: 75px;
+  background: url('/img/lonelytogetherlogo.png') no-repeat top left;
+  background-size: contain;
+  overflow: hidden;
+  text-indent: 201px;
 }
+
 main {
-	text-align: center;
-	margin-bottom: 2em;
+  text-align: center;
+  margin-bottom: 2em;
 }
+
 main p {
-	margin: 1em 0;
-	font-weight: bold;
-	text-align: center;
-	font-size: 2em;
-	color: #ffdf00;
+  margin: 1em 0;
+  font-weight: bold;
+  text-align: center;
+  font-size: 2em;
+  color: #ffdf00;
 }
+
 main a,
 main a:hover {
-	color: #ffdf00;
+  color: #ffdf00;
 }
