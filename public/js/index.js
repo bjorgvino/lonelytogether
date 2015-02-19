@@ -6,6 +6,12 @@ var maxCount = 2000;
 
 $(function () {
   sizeHeader();
+
+  // Initialize the masonry plugin
+  $photogrid.masonry({
+    itemSelector: '#photogrid li'
+  });
+
   fetchImages();
 
   var s = skrollr.init({
@@ -22,7 +28,7 @@ $(function () {
 
 $(window).resize(function() {
   sizeHeader();
-})
+});
 
 function sizeHeader() {
   var $container = $('#logo'),
@@ -33,34 +39,42 @@ function sizeHeader() {
 }
 
 function fetchImages() {
-  $.when(
-    $.ajax({
-      method: 'get',
-      dataType: 'json',
-      url: api + 'getfeed',
-      data: { count: maxCount, lastId: lastId },
-    })
-  ).then(function(data) {
+  $.ajax({
+    method: 'get',
+    dataType: 'json',
+    url: api + 'getfeed',
+    data: { count: maxCount, lastId: lastId },
+  })
+  .done(function(data) {
     if (data && data.length > 0) {
       renderImages(data);
       lastId = data[0].id;
     }
-  }, function(error){
+  })
+  .fail(function(jqXHR, textStatus, error) {
     if (typeof(window.console) !== "undefined") {
       console.log("Status: ", error.status);
       console.log("Response: ", error.responseText);
     }
-  }).done(function() {
+  })
+  .always(function() {
     // Schedule next poll
     setTimeout(fetchImages, 10000);
   });
 }
 
 function renderImages(data) {
-  var $row = $photogrid.find('div.row:first');
-  var rows = '';
+  var elements = [];
+
   for (var i in data) {
-    rows += '<div class="col-sm-2"><a href="/entry/' + data[i].id + '"><img src="' + imageFolder + data[i].source + '_images/' + data[i].image_filename + '" alt="' + data[i].left_username + ' and ' + data[i].right_username + '" /></a></div>';
+    var imgSrc = imageFolder + data[i].source + '_images/' + data[i].image_filename;
+    var imgAlt = data[i].left_username + ' and ' + data[i].right_username;
+    var element = document.createElement('li');
+    element.innerHTML = '<a href="/entry/' + data[i].id + '"><img src="' + imgSrc + '" alt="' + imgAlt + '" /></a>';
+    elements.push(element);
   }
-  $row.prepend(rows);
+
+  $photogrid.prepend(elements).imagesLoaded(function () {
+    $photogrid.masonry('prepended', elements);
+  });
 }

@@ -1,0 +1,4 @@
+*.pyc
+config
+/public/uploads/photobooth_images/
+lonelytogether.db
